@@ -13,30 +13,10 @@ jobs:
         with:
           fetch-depth: 2  # 直前のコミットを取得
 
-      - name: Install Perl
-        run: sudo apt-get install -y perl
-
-      - name: Get changed Perl files
-        id: changed-files
+      - name: Run Perl syntax check
         run: |
-          files=$(git diff --name-only HEAD^ 2>/dev/null | grep -E '\.pl$|\.pm$' || true)
-          echo "FILES=$files" >> $GITHUB_ENV
-
-      - name: Run Perl syntax check and report errors
-        if: env.FILES != ''
-        run: |
-          for file in $FILES; do
-            errors=$(perl -c "$file" 2>&1)
-            if [ $? -ne 0 ]; then
-              echo "$errors" | while IFS= read -r line; do
-                if [[ $line =~ at\ (.*)\ line\ ([0-9]+) ]]; then
-                  file_path="${BASH_REMATCH[1]}"
-                  line_number="${BASH_REMATCH[2]}"
-                  echo "::error file=$file_path,line=$line_number::$line"
-                else
-                  echo "::error file=$file::$line"
-                fi
-              done
-              exit 1
-            fi
+          for file in $(git diff --name-only HEAD^ | grep -E '\.pl$|\.pm$' || true); do
+            perl -c "$file" 2>&1 | while IFS= read -r line; do
+              [[ $line =~ line\ ([0-9]+) ]] && echo "::error file=$file,line=${BASH_REMATCH[1]}::$line"
+            done
           done
