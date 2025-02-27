@@ -16,7 +16,8 @@ jobs:
 
       - name: Run Perl syntax check
         run: |
-          for file in $(git diff --name-only HEAD^ | grep -E '\.pl$|\.pm$' || true); do
+          for file in $(git diff --name-only HEAD^ 2>/dev/null || git ls-files | grep -E '\.pl$|\.pm$' || true); do
+          
             perl -c "$file" 2>&1 | awk -v file="$file" '
               /line [0-9]+/ {
                 match($0, /line ([0-9]+)/, arr);
