@@ -33,19 +33,24 @@ jobs:
           echo "$FILES"
           
           error_count=0
+          error_log=""
 
           for file in $FILES; do
             echo "::group::Checking $file"
             output=$(perl -c "$file" 2>&1)
             status=$?
             echo "$output"
+            echo "::endgroup::"
 
             if [ $status -ne 0 ]; then
               echo "::error file=$file::Syntax error detected in $file"
               error_count=$((error_count + 1))
+              error_log="$error_log\n$file:\n$output\n"
             fi
           done
 
           if [ $error_count -ne 0 ]; then
+            echo -e "\n===== Syntax Errors Summary ====="
+            echo -e "$error_log"
             exit 1
           fi
