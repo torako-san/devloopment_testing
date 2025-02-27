@@ -37,18 +37,19 @@ jobs:
 
           for file in $changed_files; do
             echo "⏳ Checking syntax for: $file"
+            # Perl 構文チェックを行い、エラーを全て表示する
             perl -c "$file" 2>&1 | awk -v file="$file" '
               /syntax error/ && /line [0-9]+/ {
                 match($0, /line ([0-9]+)/, arr);
                 print "::error file=" file ",line=" arr[1] "::" $0;
-                error_found=1
+                error_count++
               }
-              END { if (error_found) exit 1; }
             '
           done
 
           if [ $error_count -ne 0 ]; then
+            echo "::error::There are syntax errors in the files."
             exit 1
+          else
+            echo "✅ No syntax errors found!"
           fi
-
-          echo "✅ No syntax errors found!"
