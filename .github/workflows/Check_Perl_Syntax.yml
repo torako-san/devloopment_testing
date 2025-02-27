@@ -23,7 +23,16 @@ jobs:
           # PR の "Files changed" に含まれるファイルを取得
           changed_files=$(git diff --name-only origin/${{ github.base_ref }} | grep -E '\.pl$|\.pm$' || true)
 
+          if [ -z "$changed_files" ]; then
+            echo "ℹ️ No Perl files changed, skipping syntax check."
+            exit 0
+          fi
+
+          echo "🔍 Checking syntax for the following files:"
+          echo "$changed_files"
+
           for file in $changed_files; do
+            echo "⏳ Checking syntax for: $file"
             perl -c "$file" 2>&1 | awk -v file="$file" '
               /syntax error/ && /line [0-9]+/ {
                 match($0, /line ([0-9]+)/, arr);
@@ -37,3 +46,5 @@ jobs:
           if [ $error_count -ne 0 ]; then
             exit 1
           fi
+
+          echo "✅ No syntax errors found!"
