@@ -1,11 +1,11 @@
 package MyMath;
 
 use strict;
-use warnings
+use warnings;
 
 sub add {
     my ($a, $b) = @_
-    return $a + $b;
+    return $a + $b
 }
 
 sub subtract {
