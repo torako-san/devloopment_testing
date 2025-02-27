@@ -15,12 +15,12 @@ jobs:
         id: check_files
         run: |
           FILES=$(git diff --name-only HEAD^ 2>/dev/null || git ls-files | grep -E '\.pl$|\.pm$' || true)
-          echo "::set-output name=files::$FILES"
+          echo "files=$FILES" >> $GITHUB_ENV
 
   run-syntax-check:
     needs: syntax-check
     runs-on: ubuntu-latest
-    if: needs.syntax-check.outputs.files != ''
+    if: env.files != ''
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -30,7 +30,7 @@ jobs:
 
       - name: Run Perl syntax check
         run: |
-          FILES=$(echo "${{ needs.syntax-check.outputs.files }}")
+          FILES=$(echo "${{ env.files }}")
           
           for file in $FILES; do
             perl -c "$file" 2>&1 | awk -v file="$file" '
