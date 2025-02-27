@@ -11,46 +11,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2  # 直前のコミットとの差分を取得するため
+          fetch-depth: 2  # 直前のコミットとの差分を取得
 
       - name: Install Perl
         run: sudo apt-get install -y perl
 
-      - name: Get changed Perl files
-        id: changed-files
+      - name: Run Perl syntax check
         run: |
           files=$(git diff --name-only HEAD^ | grep -E '\.pl$|\.pm$' || true)
-          echo "Changed files:"
-          echo "$files"
-          echo "FILES<<EOF" >> $GITHUB_ENV
-          echo "$files" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-
-      - name: Run Perl syntax check
-        if: env.FILES != ''
-        run: |
-          echo "Running syntax check on the following files:"
-          echo "$FILES"
+          [ -z "$files" ] && exit 0  # 変更されたファイルがない場合はスキップ
           
-          error_count=0
-          error_log=""
-
-          for file in $FILES; do
-            echo "::group::Checking $file"
-            output=$(perl -c "$file" 2>&1)
-            status=$?
-            echo "$output"
-            echo "::endgroup::"
-
-            if [ $status -ne 0 ]; then
-              echo "::error file=$file::Syntax error detected in $file"
-              error_count=$((error_count + 1))
-              error_log="$error_log\n$file:\n$output\n"
-            fi
+          for file in $files; do
+            perl -c "$file" || exit 1
           done
-
-          if [ $error_count -ne 0 ]; then
-            echo -e "\n===== Syntax Errors Summary ====="
-            echo -e "$error_log"
-            exit 1
-          fi
