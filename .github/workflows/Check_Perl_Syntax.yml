@@ -14,15 +14,17 @@ jobs:
       - name: Install Perl
         run: sudo apt-get install -y perl
 
-      - name: Run Perl syntax check
+      - name: Check for changed Perl files
+        id: check_files
         run: |
           FILES=$(git diff --name-only HEAD^ 2>/dev/null || git ls-files | grep -E '\.pl$|\.pm$' || true)
-          
-          if [ -z "$FILES" ]; then
-            echo "No Perl files to check."
-            exit 0
-          fi
+          echo "::set-output name=files::$FILES"
 
+      - name: Run Perl syntax check
+        if: steps.check_files.outputs.files != ''
+        run: |
+          FILES=$(echo "${{ steps.check_files.outputs.files }}")
+          
           for file in $FILES; do
             perl -c "$file" 2>&1 | awk -v file="$file" '
               /line [0-9]+/ {
