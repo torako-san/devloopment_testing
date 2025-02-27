@@ -26,7 +26,6 @@ jobs:
         if: env.FILES != ''
         run: |
           error_count=0
-
           for file in $FILES; do
             output=$(perl -c "$file" 2>&1)
             status=$?
