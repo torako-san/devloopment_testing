@@ -11,19 +11,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Perl
-        run: sudo apt-get install -y perl
-
       - name: Check for changed Perl files
         id: check_files
         run: |
           FILES=$(git diff --name-only HEAD^ 2>/dev/null || git ls-files | grep -E '\.pl$|\.pm$' || true)
           echo "::set-output name=files::$FILES"
 
+  run-syntax-check:
+    needs: syntax-check
+    runs-on: ubuntu-latest
+    if: needs.syntax-check.outputs.files != ''
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Perl
+        run: sudo apt-get install -y perl
+
       - name: Run Perl syntax check
-        if: steps.check_files.outputs.files != ''
         run: |
-          FILES=$(echo "${{ steps.check_files.outputs.files }}")
+          FILES=$(echo "${{ needs.syntax-check.outputs.files }}")
           
           for file in $FILES; do
             perl -c "$file" 2>&1 | awk -v file="$file" '
