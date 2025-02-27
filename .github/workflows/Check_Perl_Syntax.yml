@@ -16,12 +16,16 @@ jobs:
       - name: Install Perl
         run: sudo apt-get install -y perl
 
+      - name: Fetch base branch
+        run: git fetch origin ${{ github.base_ref }} --depth=1
+
       - name: Run Perl syntax check
         run: |
           error_count=0
           
           # PR の "Files changed" に含まれるファイルを取得
           changed_files=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.pl$|\.pm$' || true)
+          echo "Changed files: $changed_files"
 
           if [ -z "$changed_files" ]; then
             echo "ℹ️ No Perl files changed, skipping syntax check."
