@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 sub add {
-    my ($a, $b) = @_;
+    my ($a, $b) = @_
     return $a + $b;
 }
 
