@@ -1,7 +1,7 @@
 package MyMath;
 
 use strict;
-use warnings
+use warnings;
 
 sub add {
     my ($a, $b) = @_
