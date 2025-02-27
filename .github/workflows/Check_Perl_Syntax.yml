@@ -53,6 +53,4 @@ jobs:
           if [ $error_count -ne 0 ]; then
             echo "::error::There are syntax errors in the files."
             exit 1
-          else
-            echo "✅ No syntax errors found!"
           fi
