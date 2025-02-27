@@ -11,7 +11,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2  # 直前のコミットとの差分を取得
+          fetch-depth: 2  # PR のベースブランチとの差分を取得
 
       - name: Install Perl
         run: sudo apt-get install -y perl
@@ -20,7 +20,8 @@ jobs:
         run: |
           error_count=0
 
-          for file in $(git diff --name-only HEAD^ 2>/dev/null || git ls-files | grep -E '\.pl$|\.pm$' || true); do
+          # PR のベースブランチとの差分にあるファイルを取得
+          for file in $(git diff --name-only origin/${{ github.base_ref }} | grep -E '\.pl$|\.pm$' || true); do
             perl -c "$file" 2>&1 | grep "syntax error" | while IFS= read -r line; do
               if [[ $line =~ at\ (.*)\ line\ ([0-9]+) ]]; then
                 file_path="${BASH_REMATCH[1]}"
