@@ -14,9 +14,6 @@ jobs:
       - name: Install Perl
         run: sudo apt-get install -y perl
         
-      - name: Fetch base branch
-        run: git fetch origin ${{ github.base_ref }} --depth=1
-
       - name: Run Perl syntax check
         run: |
           echo "Changed files: $changed_files"
