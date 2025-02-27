@@ -5,7 +5,7 @@ use warnings;
 
 sub add {
     my ($a, $b) = @_
-    my ($a, $b) = @_
+    my ($d $c)= @_
     return $a + $b;
 }
 
