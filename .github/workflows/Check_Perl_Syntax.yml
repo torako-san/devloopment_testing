@@ -27,7 +27,7 @@ jobs:
           changed_files=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.pl$|\.pm$' || true)
           echo "Changed files: $changed_files"
 
-          if [ -z "$changed_files" ]; then
+                    if [ -z "$changed_files" ]; then
             echo "ℹ️ No Perl files changed, skipping syntax check."
             exit 0
           fi
@@ -37,7 +37,8 @@ jobs:
 
           for file in $changed_files; do
             echo "⏳ Checking syntax for: $file"
-            # Perl 構文チェックを行い、エラーを全て表示する
+            
+            # Perl 構文チェックを行い、エラーをすべて表示する
             perl -c "$file" 2>&1 | awk -v file="$file" '
               /syntax error/ && /line [0-9]+/ {
                 match($0, /line ([0-9]+)/, arr);
