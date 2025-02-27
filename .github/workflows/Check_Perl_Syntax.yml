@@ -1,0 +1,26 @@
+name: Check Perl Syntax
+
+on:
+  pull_request:
+
+jobs:
+  perl-syntax-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+
+      - name: Check Perl syntax
+        if: github.base_ref != 'main' && github.base_ref != 'develop'  # 除外するブランチ
+        run: |
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            if [[ $file == *.pl || $file == *.pm ]]; then
+              echo "Checking syntax for $file"
+              perl -c $file || exit 1
+            fi
+          done
